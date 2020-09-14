@@ -20,6 +20,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,11 +30,13 @@ public class MainActivity extends AppCompatActivity {
     String BASE_URL = "http://www.mocky.io/";
     ActivityMainBinding binding;
     private DatabaseHandler db;
+    RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        recyclerView=findViewById(R.id.recyclerView);
         db = new DatabaseHandler(this);
         mApiService = CreateSerVice();
         if (db.getEmpCount() == 0)
@@ -52,7 +55,8 @@ public class MainActivity extends AppCompatActivity {
                     //if (response.code() == 200) {
                     if (response.body() != null) {
                         employeeList = response.body();
-                        if (employeeList != null && employeeList.isEmpty()) {
+                        if (employeeList != null && !employeeList.isEmpty()) {
+                            Log.d(TAG,"employeeList "+employeeList.size()+"  lsit  "+employeeList);
                             setView(employeeList);
                             //writing to db
                             saveToDatabase(employeeList);
@@ -92,15 +96,19 @@ public class MainActivity extends AppCompatActivity {
         List<EmpSub> empSubList = new ArrayList<>();
         for (int i = 0; i < employeeList.size(); i++) {
             Employee employee = employeeList.get(i);
-            EmpSub empSub = new EmpSub(employee.getId(), employee.getName(), employee.getProfile_image(), employee.getCompany().getName());
+            String cmpname= employee.getCompany()!=null?employee.getCompany().getName():"";
+            Log.d(TAG," setView  "+employee.getId()+" "+ employee.getName()+" "+ employee.getProfile_image()+" "+cmpname);
+            EmpSub empSub = new EmpSub(employee.getId(), employee.getName(), employee.getProfile_image(),employee.getCompany()==null?"": employee.getCompany().getName());
             empSubList.add(empSub);
         }
+
         setRecycler(empSubList);
     }
 
     private void setRecycler(List<EmpSub> empSubList) {
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this, RecyclerView.VERTICAL, false));
-        binding.recyclerView.setAdapter(new EmployeeAdapter(this, empSubList));
+        Log.d(TAG,"setRecycler");
+        //.binding.recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, RecyclerView.VERTICAL, false));
+        recyclerView.setAdapter(new EmployeeAdapter(this, empSubList));
     }
 
     private void saveToDatabase(final List<Employee> employeeList) {
@@ -116,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
     public APIService CreateSerVice() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
                 .build();
         return retrofit.create(APIService.class);
     }

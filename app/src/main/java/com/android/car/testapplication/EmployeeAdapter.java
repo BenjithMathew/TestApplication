@@ -2,6 +2,7 @@ package com.android.car.testapplication;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,15 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.testapplication.Models.EmpSub;
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
 import com.bumptech.glide.request.transition.Transition;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
 public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.ViewHolder> {
+    private static final String TAG = EmployeeAdapter.class.getSimpleName();
     Context context;
     List<EmpSub> empList;
 
@@ -37,17 +36,20 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.ViewHo
         return new ViewHolder(v);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Glide.with(context).load(empList.get(holder.getAdapterPosition())).into(new DrawableImageViewTarget(holder.ivProfile) {
+        GlideApp.with(context).load(empList.get(holder.getAdapterPosition()).getImage()).into(new DrawableImageViewTarget(holder.ivProfile) {
             @Override
             public void onResourceReady(Drawable resource, @Nullable Transition<? super Drawable> transition) {
                 super.onResourceReady(resource, transition);
+                Log.d(TAG, "onResourceReady: ");
             }
 
             @Override
             public void onLoadFailed(@Nullable Drawable errorDrawable) {
                 super.onLoadFailed(errorDrawable);
+                Log.e(TAG, "onLoadFailed: ");
             }
         });
 

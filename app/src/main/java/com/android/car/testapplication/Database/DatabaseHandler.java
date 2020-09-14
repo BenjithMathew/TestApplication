@@ -19,7 +19,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String TABLE_EMP = "emp_table";
     private static final String TABLE_ADR = "adr_table";
-    private static final String TABLE_CMP = "emp_table";
+    private static final String TABLE_CMP = "cmp_table";
     private static final String TABLE_GEO = "geo_table";
 
     public String id = "id";
@@ -146,8 +146,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 values, SQLiteDatabase.CONFLICT_REPLACE);
         db.close(); // Closing database connection
 
-        addAddress(employee);
+        if (employee.getAddress() != null)
+            addAddress(employee);
 
+        if (employee.getCompany() != null)
+            addCompany(employee);
     }
 
     private void addAddress(Employee employee) {
@@ -166,7 +169,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 values, SQLiteDatabase.CONFLICT_REPLACE);
         db.close(); // Closing database connection
 
-        addCompany(employee);
+        if (employee.getAddress().getGeo() != null)
+            addGeo(employee);
     }
 
     private void addCompany(Employee employee) {
@@ -177,13 +181,11 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(cmp_name, employee.getCompany().getName());
         values.put(catchPhrase, employee.getCompany().getCatchPhrase());
         values.put(bs, employee.getCompany().getBs());
-        values.put(zipcode, employee.getAddress().getZipcode());
 
         db.insertWithOnConflict(TABLE_CMP, null,
                 values, SQLiteDatabase.CONFLICT_REPLACE);
         db.close(); // Closing database connection
 
-        addGeo(employee);
     }
 
     private void addGeo(Employee employee) {
